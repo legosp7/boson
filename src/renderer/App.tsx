@@ -16,6 +16,7 @@ import { Snapshots } from './Snapshots';
 import { useStore } from './hooks';
 import { MirrorStatus } from './MirrorStatus';
 import { Alerts } from './Alerts';
+import { Boss } from './Boss';
 
 export type ColorModeValues = 'bright' | 'dark' | 'system';
 
@@ -172,6 +173,9 @@ export default function App() {
       break;
     case 'alerts':
       view = <Alerts />
+      break;
+    case 'boss':
+      view = <Boss />
       break;
     default:
       view = null;

@@ -238,6 +238,15 @@ export default class MenuBuilder {
         },
       ],
     };
+    const subMenuInstr: MenuItemConstructorOptions = {
+      label: 'Instr',
+      submenu: [
+        {
+          label: "BOSS",
+          click: () => createWindow('boss'),
+        },
+      ],
+    };
     const subMenuWindow: DarwinMenuItemConstructorOptions = {
       label: 'Window',
       submenu: [
@@ -265,6 +274,7 @@ export default class MenuBuilder {
       subMenuView,
       subMenuTools,
       subMenuTCC,
+      subMenuInstr,
       subMenuWindow,
     ];
   }

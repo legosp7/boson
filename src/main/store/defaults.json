@@ -73,6 +73,12 @@
       "width": 400,
       "height": 300,
       "resizable": true
+    },
+    "boss" : {
+      "width": 100,
+      "height": 200,
+      "resizable": true
+
     }
   },
   "profiles": {
