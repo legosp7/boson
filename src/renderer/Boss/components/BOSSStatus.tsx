@@ -222,14 +222,25 @@ export default function BOSSStatus() {
     }))
   );
 
+  //resizing
+  const COLLIMATOR_OPEN_SIZE = {width: 275, height: 375};
+  const COLLIMATOR_CLOSED_SIZE = {width: 250, height: 225};
+
+  React.useEffect(() => {
+    const initialSize = showCollimator ? COLLIMATOR_OPEN_SIZE : COLLIMATOR_CLOSED_SIZE;
+    void window.electron.app.resizeWindow(initialSize.width, initialSize.height);
+  }, []); // Run once on mount
+
+  console.log("Actuator Statuses:", actuatorStatuses);
+  console.log("Collimator Summary:", collimatorSummary);
+
   return (
     <Paper
       elevation={0}
       sx={{
         p: 1.5,
         width: "fit-content",
-        minWidth: 260,
-        backgroundColor: "background.paper",
+        minWidth: 275,
       }}
     >
       <Box display="flex" flexDirection="column" gap={1}>
@@ -244,36 +255,39 @@ export default function BOSSStatus() {
           <ExposureStateWdg />
         </Box>
 
-        <Box pt={0.25}>
-          <Typography
-            sx={{
-              fontSize: 14,
-              textAlign: "center",
-            }}
-          >
-            Spectro 1
-          </Typography>
-        </Box>
-
         <Box
           display="grid"
-          gridTemplateColumns="max-content 1fr"
+          gridTemplateColumns="max-content max-content max-content"
           columnGap={1.5}
           rowGap={0.75}
           alignItems="center"
         >
+          <Box />
+          <Typography sx={{ fontSize: 14, textAlign: "center" }}>Spectro 1</Typography>
+          <Box />
+
           <RowLabel>Shutter</RowLabel>
           <RowValue severity={shutterState.severity}>{shutterState.label}</RowValue>
+          <Box />
 
           <RowLabel>Hartmann</RowLabel>
           <RowValue severity={hartmannState.severity}>{hartmannState.label}</RowValue>
+          <Box />
         </Box>
 
         <Box pt={0.25}>
           <Button
             size="small"
             variant="outlined"
-            onClick={() => setShowCollimator((prev) => !prev)}
+            onClick={() => {
+              setShowCollimator((prev) => {
+                const next = !prev;
+                const nextSize = next ? COLLIMATOR_OPEN_SIZE : COLLIMATOR_CLOSED_SIZE;
+
+                void window.electron.app.resizeWindow(nextSize.width, nextSize.height);
+                return next;
+              });
+              }}
             sx={{
               minWidth: 0,
               px: 1,

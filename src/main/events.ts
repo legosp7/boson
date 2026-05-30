@@ -38,6 +38,12 @@ export default function loadEvents() {
   ipcMain.handle('app:is-focused', async () => {
     return BrowserWindow.getAllWindows().some((win) => win.isFocused());
   });
+  ipcMain.handle('app:resize-window', (event, width: number, height: number) => {
+    const browserWindow = BrowserWindow.fromWebContents(event.sender);
+    if (browserWindow) {
+      browserWindow.setContentSize(width, height);
+    }
+  });
 
   // tron
   ipcMain.handle('tron:get-status', () => tron.status);

@@ -33,8 +33,8 @@ const ElectronAPI = {
     once(channel: string, func: (...args: any[]) => void) {
       ipcRenderer.once(channel, (_event, ...args) => func(...args));
     },
-    invoke(channel: string, args: any[]) {
-      return ipcRenderer.invoke(channel, args);
+    invoke(channel: string, ...args: any[]) {
+      return ipcRenderer.invoke(channel, ...args);
     },
     removeListener(channel: string, listener: (...args: any) => void) {
       ipcRenderer.removeListener(channel, listener);
@@ -59,6 +59,9 @@ const ElectronAPI = {
     isFocused(): Promise<boolean> {
       return ipcRenderer.invoke('app:is-focused');
     },
+    resizeWindow(width: number, height: number) {
+      return ipcRenderer.invoke('app:resize-window', width, height);
+    }
   },
   tron: {
     getStatus() {
