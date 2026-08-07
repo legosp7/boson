@@ -32,6 +32,11 @@ export interface Keyword {
   sender: string | undefined;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   values: any[];
+
+  isCurrent: boolean;
+  isGenuine: boolean;
+  timestamp: number;
+  replyCode?: string;
 }
 
 export enum CommandStatus {

@@ -1,5 +1,6 @@
 import React from "react";
-import { Box, LinearProgress, Typography } from "@mui/material";
+import { Box } from "@mui/system";
+import { LinearProgress, Typography } from "@mui/material";
 import { useKeywords } from "renderer/hooks";
 
 type ExposureState =
@@ -10,84 +11,157 @@ type ExposureState =
   | "PREREADING"
   | "READING"
   | "LEGIBLE"
-  | "ABORTED"
-  | "?";
+  | "ABORTED";
 
-function formatSeconds(value: number | null): string {
-  if (value == null || !Number.isFinite(value)) return "";
-  return `${value.toFixed(1)} sec`;
+function formatSeconds(value: number): string {
+  return `${Math.max(0, value).toFixed(1)} sec`;
 }
 
 export default function ExposureStateWdg() {
   const keywords = useKeywords(["boss.exposureState"]);
-  const exposureStateW = keywords?.exposureState;
 
-  const exposure = React.useMemo(() => {
-    const values = Array.isArray(exposureStateW?.values) ? exposureStateW.values : [];
+  const { exposureState: exposureStateW } = keywords;
 
-    if (values.length < 3 || values[0] == null) {
-      return {
-        state: "?" as ExposureState,
-        totalTime: null as number | null,
-        elapsedTime: null as number | null,
-        remainingTime: null as number | null,
-        percent: 0,
-        showTimer: false,
-        isPaused: false,
-      };
-    }
+  const [progress, setProgress] = React.useState<number>(0);
+  const [remainingSec, setRemainingSec] = React.useState<number>(0);
 
-    const state = String(values[0]) as ExposureState;
-    const totalTime = values[1] == null ? 0 : Number(values[1]);
-    const elapsedTime = values[2] == null ? totalTime : Number(values[2]);
-    const remainingTime = totalTime - elapsedTime;
-    const percent =
-      totalTime > 0 ? Math.min(100, Math.max(0, (elapsedTime / totalTime) * 100)) : 0;
-
-    return {
-      state,
-      totalTime,
-      elapsedTime,
-      remainingTime,
-      percent,
-      showTimer: totalTime > 0,
-      isPaused: state === "PAUSED",
-    };
+  const state = React.useMemo(() => {
+    const v = exposureStateW?.values?.[0];
+    return v != null ? String(v).toUpperCase() as ExposureState : null;
   }, [exposureStateW]);
 
+  const totalTime = React.useMemo(() => {
+    const v = exposureStateW?.values?.[1];
+    return Number.isFinite(v) ? Number(v) : 0;
+  }, [exposureStateW]);
+
+  const elapsedTimeFromKeyword = React.useMemo(() => {
+    const v = exposureStateW?.values?.[2];
+    return Number.isFinite(v) ? Number(v) : totalTime;
+  }, [exposureStateW, totalTime]);
+
+  const isPaused = React.useMemo(() => state === "PAUSED", [state]);
+
+  const showTimer = React.useMemo(() => {
+    return state !== null && totalTime > 0;
+  }, [state, totalTime]);
+
+  const isCountingState = React.useMemo(() => {
+    if (state == null) return false;
+    return !isPaused && totalTime > 0;
+  }, [state, isPaused, totalTime]);
+
+  const localStartRef = React.useRef<number | null>(null);
+  const baseElapsedRef = React.useRef<number>(0);
+
+  React.useEffect(() => {
+    if (!showTimer) {
+      setProgress(0);
+      setRemainingSec(0);
+      localStartRef.current = null;
+      baseElapsedRef.current = 0;
+      return;
+    }
+
+    baseElapsedRef.current = Math.max(0, elapsedTimeFromKeyword);
+
+    if (isPaused) {
+      const remaining = Math.max(0, totalTime - elapsedTimeFromKeyword);
+      const percent =
+        totalTime > 0
+          ? Math.max(0, Math.min(100, (elapsedTimeFromKeyword / totalTime) * 100))
+          : 0;
+
+      setProgress(percent);
+      setRemainingSec(remaining);
+      localStartRef.current = null;
+      return;
+    }
+
+    localStartRef.current = Date.now();
+    const initialRemaining = Math.max(0, totalTime - elapsedTimeFromKeyword);
+    const initialPercent =
+      totalTime > 0
+        ? Math.max(0, Math.min(100, (elapsedTimeFromKeyword / totalTime) * 100))
+        : 0;
+
+    setProgress(initialPercent);
+    setRemainingSec(initialRemaining);
+  }, [showTimer, isPaused, totalTime, elapsedTimeFromKeyword, state]);
+
+  React.useEffect(() => {
+    if (!showTimer || !isCountingState || totalTime <= 0) {
+      return;
+    }
+
+    const tick = () => {
+      if (localStartRef.current == null) {
+        localStartRef.current = Date.now();
+      }
+
+      const elapsedSinceLocalStart = (Date.now() - localStartRef.current) / 1000;
+      const currentElapsed = baseElapsedRef.current + elapsedSinceLocalStart;
+      const remaining = Math.max(0, totalTime - currentElapsed);
+      const percent = Math.max(0, Math.min(100, (currentElapsed / totalTime) * 100));
+
+      setProgress(percent);
+      setRemainingSec(remaining);
+
+      if (remaining <= 0) {
+        setProgress(100);
+        setRemainingSec(0);
+        localStartRef.current = null;
+      }
+    };
+
+    tick();
+    const id = window.setInterval(tick, 100);
+
+    return () => window.clearInterval(id);
+  }, [showTimer, isCountingState, totalTime]);
+
+  const displayState = React.useMemo(() => {
+    if (!state) return "?";
+    return state.charAt(0) + state.slice(1).toLowerCase();
+  }, [state]);
+
   return (
-    <Box display="flex" alignItems="center" gap={1} minWidth={0}>
+    <Box display="flex" alignItems="center" gap={1} minWidth={0} width="100%">
       <Typography
         sx={{
+          minWidth: 85,
           fontSize: 14,
           whiteSpace: "nowrap",
-          color: exposure.isPaused ? "warning.main" : "text.primary",
+          color: isPaused ? "warning.main" : "text.primary",
         }}
       >
-        {exposure.state === "?" ? "?" : exposure.state.charAt(0) + exposure.state.slice(1).toLowerCase()}
+        {displayState}
       </Typography>
 
-      {exposure.showTimer && (
-        <Box display="flex" alignItems="center" gap={1} minWidth={160} flex={1}>
+      {showTimer ? (
+        <Box display="flex" alignItems="center" gap={1} flex={1} minWidth={140}>
           <LinearProgress
             variant="determinate"
-            value={exposure.percent}
+            value={progress}
             sx={{
               flex: 1,
               height: 6,
               borderRadius: 999,
-              minWidth: 60,
             }}
           />
           <Typography
             variant="body2"
             color="text.secondary"
-            sx={{ fontSize: 12, whiteSpace: "nowrap" }}
+            sx={{
+              fontSize: 12,
+              whiteSpace: "nowrap",
+              minWidth: 55,
+            }}
           >
-            {formatSeconds(exposure.remainingTime)}
+            {formatSeconds(remainingSec)}
           </Typography>
         </Box>
-      )}
+      ) : null}
     </Box>
   );
 }

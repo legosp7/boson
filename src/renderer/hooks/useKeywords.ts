@@ -13,7 +13,7 @@ import useConnectionStatus from './useConnectionStatus';
 import useEventListener from './useEventListener';
 
 interface ReturnType {
-  [key: string]: Keyword;
+  [key: string]: Keyword | undefined;
 }
 export default function useKeywords(
   keywords: string[],
@@ -23,14 +23,14 @@ export default function useKeywords(
 
   const [connectionStatus] = useConnectionStatus();
 
-  const [keys, setKeys] = React.useState<{ [key: string]: any }>(
+  const [keys, setKeys] = React.useState<ReturnType>(
     Object.fromEntries(keywords.map((k) => [k, undefined]))
   );
 
   const ref = React.useRef({ keywords, getLast });
 
   const handleEvent = React.useCallback((name: string, keyword: Keyword) => {
-    const update: { [key: string]: any } = {};
+    const update: ReturnType = {};
     // For convenience, we store the keyword as its name
     // (without the actor prefix) and as the actor.keyword name.
     update[keyword.name] = keyword;

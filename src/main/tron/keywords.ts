@@ -83,6 +83,11 @@ export default function parseLine(
               return evaluateKeyword(value);
             })
             .filter((x) => x !== undefined),
+        
+          isCurrent: true,
+          isGenuine: true,
+          timestamp: Date.now(),
+          replyCode: lineMatched.groups?.code,
         };
         return keyword;
       });

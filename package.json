@@ -65,6 +65,7 @@
     "@mui/lab": "^7.0.1-beta.23",
     "@mui/material": "^7.3.9",
     "@mui/system": "^7.3.9",
+    "@mui/x-charts": "^9.3.0",
     "@mui/x-data-grid-pro": "5.17.18",
     "electron-debug": "^4.1.0",
     "electron-log": "^5.4.3",

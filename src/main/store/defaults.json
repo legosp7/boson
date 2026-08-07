@@ -76,8 +76,14 @@
     },
     "boss" : {
       "resizable": true
-
+    },
+    "bossmonitor" : {
+      "resizable": true
+    },
+    "apogee" : {
+      "resizable": true
     }
+
   },
   "profiles": {
     "APO": {

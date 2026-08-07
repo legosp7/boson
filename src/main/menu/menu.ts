@@ -245,6 +245,14 @@ export default class MenuBuilder {
           label: "BOSS",
           click: () => createWindow('boss'),
         },
+        {
+          label: "BOSS Monitor",
+          click: () => createWindow('bossmonitor'),
+        },
+        {
+          label: "APOGEE",
+          click: () => createWindow('apogee'),
+        }
       ],
     };
     const subMenuWindow: DarwinMenuItemConstructorOptions = {
