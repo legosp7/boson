@@ -73,7 +73,17 @@
       "width": 400,
       "height": 300,
       "resizable": true
+    },
+    "boss" : {
+      "resizable": true
+    },
+    "bossmonitor" : {
+      "resizable": true
+    },
+    "apogee" : {
+      "resizable": true
     }
+
   },
   "profiles": {
     "APO": {
@@ -157,6 +167,6 @@
       "hal.auto_mode_message",
       "hub.user"
     ],
-    "trackAll": ["hub.user", "msg.msg"]
+    "trackAll": ["hub.user", "msg.msg","boss.SP1R0CCDTempRead","boss.SP1B2CCDTempRead","boss.SP1SecondaryDewarPress"]
   }
 }

@@ -75,10 +75,12 @@ export class TronConnection {
     });
     this.client.on('error', () => {
       log.info(`Connection to ${this.host}:${this.port} failed.`);
+      this.markKeywordsNotCurrent();
       this.status = ConnectionStatus.Disconnected | ConnectionStatus.Failed;
     });
     this.client.on('end', () => {
       log.info(`Connection to ${this.host}:${this.port} ended.`);
+      this.markKeywordsNotCurrent();
       this.status = ConnectionStatus.Disconnected;
     });
     this.client.on('data', (buffer: Buffer) =>
@@ -96,6 +98,22 @@ export class TronConnection {
 
     trackLast.forEach((keyword) => this.trackedKeywords.set(keyword, null));
     trackAll.forEach((keyword) => this.trackedKeywordsAll.set(keyword, []));
+  }
+
+  private markKeywordsNotCurrent() {
+    this.trackedKeywords.forEach((keyword, name) => {
+      if (!keyword) return;
+  
+      this.trackedKeywords.set(name, {
+        ...keyword,
+        isCurrent: false,
+      });
+  
+      this.emitKeyword(name, {
+        ...keyword,
+        isCurrent: false,
+      });
+    });
   }
 
   get status(): ConnectionStatus {
@@ -269,6 +287,7 @@ export class TronConnection {
       ConnectionStatus.Connected |
       ConnectionStatus.Connecting
     );
+    this.markKeywordsNotCurrent();
     this.status = this.connectionStatus | ConnectionStatus.Disconnected;
   }
 
