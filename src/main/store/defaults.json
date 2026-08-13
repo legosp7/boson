@@ -167,6 +167,6 @@
       "hal.auto_mode_message",
       "hub.user"
     ],
-    "trackAll": ["hub.user", "msg.msg"]
+    "trackAll": ["hub.user", "msg.msg","boss.SP1R0CCDTempRead","boss.SP1B2CCDTempRead","boss.SP1SecondaryDewarPress"]
   }
 }

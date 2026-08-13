@@ -17,9 +17,7 @@ interface ShutterWdgSetProps {
   onStatusMessage?: CommandStatusHandler;
 
   /**
-   * STUI omits the physical cold-shutter control at LCO and treats the
-   * shutter as open for the summary. Supply this prop to override the
-   * observatory setting.
+   * different for LCO, change if needed
    */
   showColdShutter?: boolean;
   onExpandedChange?: (expanded: boolean) => void;
@@ -51,7 +49,7 @@ function combineSeverity(first: Severity, second: Severity): Severity {
 
 /**
  * KeyVar values may arrive as booleans, 0/1, or string forms depending on
- * how the keyword was parsed or serialised.
+ * how the keyword was parsed
  */
 function keyVarBoolean(value: unknown): boolean | null {
   if (value === true || value === false) return value;
@@ -214,7 +212,6 @@ export default function ShutterWdgSet({
       return { text: "Bad", severity: "error" };
     }
 
-    // This is the exact fallback used by STUI getSummary().
     return { text: "?", severity: "error" };
   }, [hasColdShutter, shutterLimits]);
 
@@ -227,10 +224,7 @@ export default function ShutterWdgSet({
     return Number.isInteger(mask) && mask >= 0 ? mask : null;
   }, [rawLEDMask]);
 
-  /**
-   * As in STUI, an unknown LED mask does not erase the last displayed LED
-   * states. The controls are simply marked non-current.
-   */
+  
   const [lastKnownLEDMask, setLastKnownLEDMask] =
     React.useState<number | null>(null);
 
@@ -303,7 +297,6 @@ export default function ShutterWdgSet({
         ledSummary.severity
       ),
 
-      // STUI deliberately uses shutterIndexer currentness only.
       isCurrent: indexerW?.isCurrent === true,
     };
   }, [indexerW, ledSummary, shutterSummary]);

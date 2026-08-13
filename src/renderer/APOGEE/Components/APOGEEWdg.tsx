@@ -157,7 +157,7 @@ export default function APOGEEWdg({
   const cancelExposureSequence = React.useCallback(() => {
     cancelRequestedRef.current = true;
     setStatusMessage(
-      "Cancel requested; the current Tron command will finish before cancellation"
+      "Cancel requested; the current command will finish before cancellation"
     );
   }, []);
 

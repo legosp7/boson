@@ -15,7 +15,6 @@ export interface ExposeWdgHandle {
 }
 
 interface ExposeWdgProps {
-  /** Equivalent to the Python showDither() behavior for script reuse. */
   showDither?: boolean;
 }
 
@@ -144,8 +143,7 @@ const ExposeWdg = React.forwardRef<ExposeWdgHandle, ExposeWdgProps>(
       return values.filter((value) => value != null).map(String);
     }, [exposureTypeListW]);
 
-    // ditherPosition supplies the tracked defaults for both the named menu and
-    // the numeric Any-position entry.
+  
     React.useEffect(() => {
       const values = ditherPositionW?.values;
       if (!Array.isArray(values)) return;
@@ -161,8 +159,7 @@ const ExposeWdg = React.forwardRef<ExposeWdgHandle, ExposeWdgProps>(
       );
     }, [ditherPositionW?.timestamp, ditherPositionW]);
 
-    // exposureState supplies the defaults, but user-edited values are kept in
-    // the same way as RO widgets with trackDefault=True.
+  
     React.useEffect(() => {
       const values = exposureStateW?.values;
       if (!Array.isArray(values) || values[0] == null) return;

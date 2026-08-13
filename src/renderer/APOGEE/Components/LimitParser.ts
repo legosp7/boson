@@ -6,7 +6,7 @@ export interface LimitSummary {
 }
 
 /**
- * Parses forward/reverse limit-switch pairs using the same rules as STUI.
+ * Parses forward/reverse limit-switch pairs 
  *
  * - normal: every switch is false
  * - error: both switches are true for at least one actuator

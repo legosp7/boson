@@ -593,9 +593,9 @@ export default function CalBoxWdgSet({
                           color: "warning.main",
                         },
                       }}
-                      inputProps={{
+                      slotProps={{ input : {
                         "aria-label": `${name} source`,
-                      }}
+                      },}}
                     />
 
                     <Typography
