@@ -22,6 +22,7 @@ interface ShutterWdgSetProps {
    * observatory setting.
    */
   showColdShutter?: boolean;
+  onExpandedChange?: (expanded: boolean) => void;
 }
 
 interface ShutterSummary {
@@ -30,7 +31,7 @@ interface ShutterSummary {
 }
 
 const SUMMARY_LABEL_WIDTH = 120;
-const DETAIL_LABEL_WIDTH = 92;
+const DETAIL_LABEL_WIDTH = 62;
 const NUMBER_OF_LEDS = 4;
 const ALL_LEDS_ON_MASK = (1 << NUMBER_OF_LEDS) - 1;
 
@@ -109,6 +110,7 @@ function defaultColdShutterAvailability(): boolean {
 export default function ShutterWdgSet({
   onStatusMessage,
   showColdShutter,
+  onExpandedChange,
 }: ShutterWdgSetProps) {
   const keywords = useKeywords([
     "apogee.shutterIndexer",
@@ -339,17 +341,17 @@ export default function ShutterWdgSet({
   );
 
   const summaryTextSx = {
-    fontSize: 14,
+    fontSize: 13,
     lineHeight: 1.2,
     whiteSpace: "nowrap",
   } as const;
-  
+
   const detailTextSx = {
-    fontSize: 14,
+    fontSize: 13,
     lineHeight: 1.2,
     whiteSpace: "nowrap",
   } as const;
-  
+
   const summaryCheckboxSx = {
     p: 0,
     "& .MuiSvgIcon-root": {
@@ -358,7 +360,7 @@ export default function ShutterWdgSet({
   } as const;
 
   const ledCheckboxSx = {
-    p: 0.35,
+    p: 0.2,
     color:
       ledW?.isCurrent === true && ledMask != null
         ? "text.secondary"
@@ -370,30 +372,44 @@ export default function ShutterWdgSet({
           : "text.disabled",
     },
     "& .MuiSvgIcon-root": {
-      fontSize: 27,
+      fontSize: 18,
     },
   } as const;
 
   const valueButtonSx = {
-    minWidth: 72,
+    minWidth: 32,
     minHeight: 28,
-    px: 0.75,
-    py: 0.1,
+    px: 0.35,
+    py: 0,
     borderRadius: 0,
-    fontSize: 14,
-    lineHeight: 1.2,
-    textTransform: "none",
-  } as const;
-
-  const actionButtonSx = {
-    minWidth: 68,
-    minHeight: 28,
-    px: 0.65,
-    py: 0.1,
-    borderRadius: 0,
+    color: "text.primary",
+    borderColor: "divider",
+    backgroundColor: "background.paper",
     fontSize: 13,
     lineHeight: 1.2,
     textTransform: "none",
+    "&:hover": {
+      borderColor: "text.primary",
+      backgroundColor: "action.hover",
+    },
+  } as const;
+
+  const actionButtonSx = {
+    minWidth: 32,
+    minHeight: 28,
+    px: 0.35,
+    py: 0,
+    borderRadius: 0,
+    color: "text.primary",
+    borderColor: "divider",
+    backgroundColor: "background.paper",
+    fontSize: 13,
+    lineHeight: 1.2,
+    textTransform: "none",
+    "&:hover": {
+      borderColor: "text.primary",
+      backgroundColor: "action.hover",
+    },
   } as const;
 
   const cancelButtonSx = {
@@ -402,9 +418,17 @@ export default function ShutterWdgSet({
     px: 0.4,
     py: 0.1,
     borderRadius: 0,
+    color: "text.primary",
+    borderColor: "divider",
+    backgroundColor: "background.paper",
     fontSize: 14,
     lineHeight: 1.2,
     textTransform: "none",
+    "&.Mui-disabled": {
+      color: "text.disabled",
+      borderColor: "divider",
+      backgroundColor: "action.disabledBackground",
+    },
   } as const;
 
   const shutterControlIsCurrent =
@@ -415,7 +439,7 @@ export default function ShutterWdgSet({
     <Box>
       <Box
         sx={{
-          minHeight: 34,
+          minHeight: 28,
           display: "grid",
           gridTemplateColumns: `${SUMMARY_LABEL_WIDTH}px minmax(0, 1fr)`,
           columnGap: 0.75,
@@ -436,8 +460,9 @@ export default function ShutterWdgSet({
               event: React.ChangeEvent<HTMLInputElement>
             ) => setExpanded(event.target.checked)}
             sx={summaryCheckboxSx}
-            inputProps={{
+            slotProps={{ input : {
               "aria-label": "Show shutter controls",
+            },
             }}
           />
 
@@ -458,14 +483,14 @@ export default function ShutterWdgSet({
         </Typography>
       </Box>
 
-      <Collapse in={expanded} unmountOnExit>
+      <Collapse in={expanded} timeout={0} unmountOnExit>
         <Box
           sx={{
-            mt: 0.35,
-            px: 1.25,
-            py: 0.8,
+            mt: 0.25,
+            px: 0.75,
+            py: 0.45,
             border: "1px solid",
-            borderColor: "text.primary",
+            borderColor: "divider",
             width: "fit-content",
             maxWidth: "100%",
             boxSizing: "border-box",
@@ -475,8 +500,8 @@ export default function ShutterWdgSet({
             sx={{
               display: "grid",
               gridTemplateColumns: `${DETAIL_LABEL_WIDTH}px minmax(0, 1fr)`,
-              columnGap: 0.75,
-              rowGap: 0.65,
+              columnGap: 0.5,
+              rowGap: 0.35,
               alignItems: "center",
             }}
           >
@@ -495,7 +520,7 @@ export default function ShutterWdgSet({
                   sx={{
                     display: "flex",
                     alignItems: "center",
-                    gap: 0.65,
+                    gap: 0.4,
                   }}
                 >
                   <Button
@@ -519,9 +544,12 @@ export default function ShutterWdgSet({
 
                   <Button
                     variant="outlined"
-                    disabled
-                    title="The current Electron Tron API does not expose in-flight command abort."
-                    sx={cancelButtonSx}
+                    disabled={shutterIsRunning}
+                    tabIndex={-1}
+                    sx={{
+                      ...cancelButtonSx,
+                      pointerEvents: "none",
+                    }}
                   >
                     X
                   </Button>
@@ -542,7 +570,7 @@ export default function ShutterWdgSet({
               sx={{
                 display: "flex",
                 alignItems: "center",
-                gap: 0.45,
+                gap: 0.25,
                 flexWrap: "nowrap",
               }}
             >
@@ -553,8 +581,9 @@ export default function ShutterWdgSet({
                   disabled={ledIsRunning}
                   onChange={() => toggleLED(index)}
                   sx={ledCheckboxSx}
-                  inputProps={{
+                  slotProps={{ input: {
                     "aria-label": `LED ${index + 1}`,
+                  },
                   }}
                 />
               ))}
@@ -581,9 +610,12 @@ export default function ShutterWdgSet({
 
               <Button
                 variant="outlined"
-                disabled
-                title="The current Electron Tron API does not expose in-flight command abort."
-                sx={cancelButtonSx}
+                disabled={ledIsRunning}
+                tabIndex={-1}
+                sx={{
+                  ...cancelButtonSx,
+                  pointerEvents: "none",
+                }}
               >
                 X
               </Button>

@@ -129,7 +129,7 @@ export default function ExposureStateWdg() {
     <Box display="flex" alignItems="center" gap={1} minWidth={0} width="100%">
       <Typography
         sx={{
-          minWidth: 85,
+          minWidth: 70,
           fontSize: 14,
           whiteSpace: "nowrap",
           color: isPaused ? "warning.main" : "text.primary",
@@ -139,7 +139,7 @@ export default function ExposureStateWdg() {
       </Typography>
 
       {showTimer ? (
-        <Box display="flex" alignItems="center" gap={1} flex={1} minWidth={140}>
+        <Box display="flex" alignItems="center" gap={1} flex={1} minWidth={100}>
           <LinearProgress
             variant="determinate"
             value={progress}

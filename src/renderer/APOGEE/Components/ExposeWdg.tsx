@@ -341,7 +341,7 @@ const ExposeWdg = React.forwardRef<ExposeWdgHandle, ExposeWdgProps>(
                           ? 1
                           : 0.55,
                     }}
-                    inputProps={{ inputMode: "decimal" }}
+                    slotProps={{ input: {inputMode: "decimal" }}}
                   />
                   <Typography sx={textSx}>pixels</Typography>
                 </>
@@ -390,7 +390,7 @@ const ExposeWdg = React.forwardRef<ExposeWdgHandle, ExposeWdgProps>(
                   ? 1
                   : 0.55,
             }}
-            inputProps={{ inputMode: "numeric", style: { textAlign: "right" } }}
+            slotProps={{ input: {inputMode: "numeric", style: { textAlign: "right" } },}}
           />
           <Typography
             sx={{

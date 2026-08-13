@@ -23,7 +23,7 @@ interface DeviceSummary {
 }
 
 const SUMMARY_LABEL_WIDTH = 120;
-const DETAIL_LABEL_WIDTH = 92;
+const DETAIL_LABEL_WIDTH = 62;
 
 function severityColor(
   severity: Severity
@@ -348,17 +348,17 @@ export default function CalBoxWdgSet({
   );
 
   const summaryTextSx = {
-    fontSize: 14,
+    fontSize: 13,
     lineHeight: 1.2,
     whiteSpace: "nowrap",
   } as const;
-  
+
   const detailTextSx = {
-    fontSize: 14,
+    fontSize: 13,
     lineHeight: 1.2,
     whiteSpace: "nowrap",
   } as const;
-  
+
   const summaryCheckboxSx = {
     p: 0,
     "& .MuiSvgIcon-root": {
@@ -367,9 +367,9 @@ export default function CalBoxWdgSet({
   } as const;
 
   const sourceCheckboxSx = {
-    p: 0.3,
+    p: 0.2,
     "& .MuiSvgIcon-root": {
-      fontSize: 25,
+      fontSize: 18,
     },
   } as const;
 
@@ -379,9 +379,16 @@ export default function CalBoxWdgSet({
     px: 0.75,
     py: 0.1,
     borderRadius: 0,
-    fontSize: 14,
+    color: "text.primary",
+    borderColor: "divider",
+    backgroundColor: "background.paper",
+    fontSize: 13,
     lineHeight: 1.2,
     textTransform: "none",
+    "&:hover": {
+      borderColor: "text.primary",
+      backgroundColor: "action.hover",
+    },
   } as const;
 
   const cancelButtonSx = {
@@ -390,9 +397,17 @@ export default function CalBoxWdgSet({
     px: 0.4,
     py: 0.1,
     borderRadius: 0,
+    color: "text.primary",
+    borderColor: "divider",
+    backgroundColor: "background.paper",
     fontSize: 14,
     lineHeight: 1.2,
     textTransform: "none",
+    "&.Mui-disabled": {
+      color: "text.disabled",
+      borderColor: "divider",
+      backgroundColor: "action.disabledBackground",
+    },
   } as const;
 
   const shutterControlIsCurrent =
@@ -403,7 +418,7 @@ export default function CalBoxWdgSet({
     <Box>
       <Box
         sx={{
-          minHeight: 34,
+          minHeight: 28,
           display: "grid",
           gridTemplateColumns: `${SUMMARY_LABEL_WIDTH}px minmax(0, 1fr)`,
           columnGap: 0.75,
@@ -424,9 +439,11 @@ export default function CalBoxWdgSet({
               event: React.ChangeEvent<HTMLInputElement>
             ) => setExpanded(event.target.checked)}
             sx={summaryCheckboxSx}
-            inputProps={{
+            slotProps={{
+              input : {
               "aria-label":
                 "Show calibration box controls",
+              },
             }}
           />
 
@@ -447,14 +464,14 @@ export default function CalBoxWdgSet({
         </Typography>
       </Box>
 
-      <Collapse in={expanded} unmountOnExit>
+      <Collapse in={expanded} timeout={0} unmountOnExit>
         <Box
           sx={{
-            mt: 0.35,
-            px: 1.25,
-            py: 0.8,
+            mt: 0.25,
+            px: 0.75,
+            py: 0.45,
             border: "1px solid",
-            borderColor: "text.primary",
+            borderColor: "divider",
             width: "fit-content",
             maxWidth: "100%",
             boxSizing: "border-box",
@@ -464,8 +481,8 @@ export default function CalBoxWdgSet({
             sx={{
               display: "grid",
               gridTemplateColumns: `${DETAIL_LABEL_WIDTH}px minmax(0, 1fr)`,
-              columnGap: 0.75,
-              rowGap: 0.65,
+              columnGap: 0.5,
+              rowGap: 0.35,
               alignItems: "center",
             }}
           >
@@ -482,7 +499,7 @@ export default function CalBoxWdgSet({
               sx={{
                 display: "flex",
                 alignItems: "center",
-                gap: 0.65,
+                gap: 0.4,
               }}
             >
               <Button
@@ -506,9 +523,12 @@ export default function CalBoxWdgSet({
 
               <Button
                 variant="outlined"
-                disabled
-                title="The current Electron Tron API does not expose in-flight command abort."
-                sx={cancelButtonSx}
+                disabled={shutterIsRunning}
+                tabIndex={-1}
+                sx={{
+                  ...cancelButtonSx,
+                  pointerEvents: "none",
+                }}
               >
                 X
               </Button>
@@ -527,7 +547,7 @@ export default function CalBoxWdgSet({
               sx={{
                 display: "flex",
                 alignItems: "center",
-                gap: 0.45,
+                gap: 0.25,
                 flexWrap: "nowrap",
               }}
             >
@@ -547,7 +567,7 @@ export default function CalBoxWdgSet({
                     sx={{
                       display: "flex",
                       alignItems: "center",
-                      gap: 0.15,
+                      gap: 0.1,
                     }}
                   >
                     <Checkbox
@@ -596,9 +616,12 @@ export default function CalBoxWdgSet({
 
               <Button
                 variant="outlined"
-                disabled
-                title="The current Electron Tron API does not expose in-flight command abort."
-                sx={cancelButtonSx}
+                disabled={sourcesAreRunning}
+                tabIndex={-1}
+                sx={{
+                  ...cancelButtonSx,
+                  pointerEvents: "none",
+                }}
               >
                 X
               </Button>

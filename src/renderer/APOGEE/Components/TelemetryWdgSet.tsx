@@ -42,7 +42,17 @@ function formatSignificant(value: unknown): string {
   const number = finiteNumber(value);
   if (number == null) return "?";
   if (number === 0) return "0.0";
-  return number.toPrecision(2);
+
+  const exponent = Math.floor(Math.log10(Math.abs(number)));
+
+  if (exponent < -4 || exponent >= 2) {
+    return number
+      .toExponential(1)
+      .replace(/e([+-])(\d)$/, "e$10$2");
+  }
+
+  const decimalPlaces = Math.max(0, 1 - exponent);
+  return number.toFixed(decimalPlaces);
 }
 
 function formatInteger(value: unknown): string {
@@ -244,7 +254,7 @@ export default function TelemetryWdgSet() {
     tempThresholdsW,
   ]);
 
-  const textSx = { fontSize: 14, lineHeight: 1.2 } as const;
+  const textSx = { fontSize: 13, lineHeight: 1.2 } as const;
   const checkboxSx = {
     p: 0,
     "& .MuiSvgIcon-root": { fontSize: 18 },
@@ -268,7 +278,7 @@ export default function TelemetryWdgSet() {
             setExpanded(event.target.checked)
           }
           sx={checkboxSx}
-          inputProps={{ "aria-label": "Show telemetry details" }}
+          slotProps={{ input:{"aria-label": "Show telemetry details" }, }}
         />
         <Typography sx={textSx}>Telemetry</Typography>
         <Typography
@@ -284,7 +294,7 @@ export default function TelemetryWdgSet() {
         </Typography>
       </Box>
 
-      <Collapse in={expanded} unmountOnExit>
+      <Collapse in={expanded} timeout={0} unmountOnExit>
         <Box
           sx={{
             ml: 2.5,
@@ -298,7 +308,7 @@ export default function TelemetryWdgSet() {
           <Box
             sx={{
               display: "grid",
-              gridTemplateColumns: "80px 58px 58px max-content",
+              gridTemplateColumns: "90px 58px 58px max-content",
               columnGap: 0.5,
               rowGap: 0.15,
               alignItems: "center",

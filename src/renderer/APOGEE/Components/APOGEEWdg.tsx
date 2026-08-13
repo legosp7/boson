@@ -22,6 +22,9 @@ const RUNNING_EXPOSURE_STATES = new Set([
   "utr",
 ]);
 
+const DEFAULT_WINDOW_WIDTH = 410;
+const DEFAULT_WINDOW_HEIGHT = 440;
+
 export default function APOGEEWdg({
   showColdShutter,
 }: APOGEEWdgProps) {
@@ -31,9 +34,65 @@ export default function APOGEEWdg({
   const exposeRef = React.useRef<ExposeWdgHandle | null>(null);
   const scriptRunningRef = React.useRef(false);
   const cancelRequestedRef = React.useRef(false);
+  const rootRef = React.useRef<HTMLDivElement | null>(null);
+  const scrollAreaRef = React.useRef<HTMLDivElement | null>(null);
+  const contentRef = React.useRef<HTMLDivElement | null>(null);
 
   const [scriptRunning, setScriptRunning] = React.useState(false);
   const [statusMessage, setStatusMessage] = React.useState("");
+
+  React.useEffect(() => {
+    const root = rootRef.current;
+    const scrollArea = scrollAreaRef.current;
+    const content = contentRef.current;
+  
+    if (!root || !scrollArea || !content) {
+      return;
+    }
+  
+    const resizeToContent = () => {
+      const scrollAreaStyle =
+        window.getComputedStyle(scrollArea);
+  
+      const verticalPadding =
+        (Number.parseFloat(
+          scrollAreaStyle.paddingTop
+        ) || 0) +
+        (Number.parseFloat(
+          scrollAreaStyle.paddingBottom
+        ) || 0);
+  
+      const fixedHeight =
+        root.offsetHeight -
+        scrollArea.clientHeight;
+  
+      const height = Math.max(
+        DEFAULT_WINDOW_HEIGHT,
+        Math.ceil(
+          content.scrollHeight +
+            verticalPadding +
+            fixedHeight +
+            50
+        )
+      );
+  
+      window.electron.app.resizeWindow(
+        DEFAULT_WINDOW_WIDTH,
+        height
+      );
+    };
+  
+    const observer =
+      new ResizeObserver(resizeToContent);
+  
+    observer.observe(content);
+  
+    resizeToContent();
+  
+    return () => {
+      observer.disconnect();
+    };
+  }, []);
 
   const isExposing = React.useMemo(() => {
     const state = String(exposureStateW?.values?.[0] ?? "").toLowerCase();
@@ -124,6 +183,7 @@ export default function APOGEEWdg({
 
   return (
     <Box
+      ref={rootRef}
       sx={{
         width: "100%",
         minWidth: 410,
@@ -141,16 +201,20 @@ export default function APOGEEWdg({
       }}
     >
       <Box
+        ref={scrollAreaRef}
         sx={{
           flex: 1,
           minHeight: 0,
-          overflow: "auto",
+          overflow: "hidden",
           px: 0.25,
           pt: 0.4,
           pb: 0.35,
         }}
       >
-        <Box sx={{ display: "flex", flexDirection: "column", gap: 0.35 }}>
+        <Box
+          ref={contentRef}
+          sx={{ display: "flex", flexDirection: "column", gap: 0.35 }}
+        >
           <StatusWdg />
           <ShutterWdgSet
             onStatusMessage={setStatusMessage}

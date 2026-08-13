@@ -224,7 +224,7 @@ export default function BOSSStatus() {
 
   //resizing
   const COLLIMATOR_OPEN_SIZE = {width: 275, height: 375};
-  const COLLIMATOR_CLOSED_SIZE = {width: 250, height: 225};
+  const COLLIMATOR_CLOSED_SIZE = {width: 275, height: 205};
 
   React.useEffect(() => {
     const initialSize = showCollimator ? COLLIMATOR_OPEN_SIZE : COLLIMATOR_CLOSED_SIZE;

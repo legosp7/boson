@@ -30,7 +30,6 @@ interface CollItemProps {
   onStatusMessage?: CommandStatusHandler;
 }
 
-const SUMMARY_LABEL_WIDTH = 120;
 
 function severityColor(
   severity: Severity
@@ -187,6 +186,11 @@ function CollItem({
   const cancelButtonSx = {
     ...buttonSx,
     minWidth: 34,
+    "&.Mui-disabled": {
+      color: "text.disabled",
+      borderColor: "divider",
+      backgroundColor: "action.disabledBackground",
+    },
   } as const;
 
   return (
@@ -195,7 +199,7 @@ function CollItem({
         display: "grid",
         gridTemplateColumns:
           "62px 66px 30px 32px 32px 94px 34px",
-        columnGap: 0.5,
+        columnGap: 0.4,
         alignItems: "center",
       }}
     >
@@ -257,6 +261,9 @@ function CollItem({
             py: 0.25,
             px: 0.55,
           },
+          "& .MuiOutlinedInput-notchedOutline": {
+            borderColor: "divider",
+          },
         }}
       >
         {increments.map((item) => (
@@ -272,9 +279,12 @@ function CollItem({
 
       <Button
         variant="outlined"
-        disabled
-        title="The current Electron Tron API does not expose in-flight command abort."
-        sx={cancelButtonSx}
+        disabled={isRunning}
+        tabIndex={-1}
+        sx={{
+          ...cancelButtonSx,
+          pointerEvents: "none",
+        }}
       >
         X
       </Button>
@@ -381,41 +391,35 @@ export default function CollWdgSet({
     <Box>
       <Box
         sx={{
-          minHeight: 28,
+          minHeight: 24,
           display: "grid",
-          gridTemplateColumns: `${SUMMARY_LABEL_WIDTH}px minmax(0, 1fr)`,
-          columnGap: 0.75,
+          gridTemplateColumns: "20px max-content minmax(0, 1fr)",
+          columnGap: 0.35,
           alignItems: "center",
         }}
       >
-        <Box
-          sx={{
-            display: "flex",
-            justifyContent: "flex-end",
-            alignItems: "center",
-            gap: 0.45,
+        <Checkbox
+          size="small"
+          checked={expanded}
+          onChange={(
+            event: React.ChangeEvent<HTMLInputElement>
+          ) => setExpanded(event.target.checked)}
+          sx={summaryCheckboxSx}
+          slotProps={{
+            input: {
+              "aria-label": "Show collimator controls",
+            },
           }}
-        >
-          <Checkbox
-            checked={expanded}
-            onChange={(
-              event: React.ChangeEvent<HTMLInputElement>
-            ) => setExpanded(event.target.checked)}
-            sx={summaryCheckboxSx}
-            inputProps={{
-              "aria-label":
-                "Show collimator controls",
-            }}
-          />
+        />
 
-          <Typography sx={summaryTextSx}>
-            Collimator
-          </Typography>
-        </Box>
+        <Typography sx={summaryTextSx}>
+          Collimator
+        </Typography>
 
         <Typography
           sx={{
             ...summaryTextSx,
+            ml: 0.5,
             color: summary.isCurrent
               ? severityColor(summary.severity)
               : "text.disabled",
@@ -425,14 +429,14 @@ export default function CollWdgSet({
         </Typography>
       </Box>
 
-      <Collapse in={expanded} unmountOnExit>
+      <Collapse in={expanded} timeout={0} unmountOnExit>
         <Box
           sx={{
             mt: 0.25,
             px: 0.75,
             py: 0.45,
             border: "1px solid",
-            borderColor: "text.primary",
+            borderColor: "divider",
             width: "fit-content",
             maxWidth: "100%",
             boxSizing: "border-box",
